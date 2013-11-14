@@ -8,69 +8,123 @@ const float firstSecond = 0;
 const float secondThird = 0;
 const float thirdFourth = 0;
 const float outerToTurn = 0;
-const float turnDistance = 0;
-const float turnToLine = 0;
-const float lineToPark = 0;
+const float turnDistance = 3;
+const float turnToLine = 40.0;
+const float lineToPark = 30.0;
 const int firstMarker = 5;
 const int secondMarker = 7;
 const int thirdMarker = 9;
 
-void moveRobot(float distance, bool direction){
+const int forward = 1;
+const int backward = -1;
+
+const float inchesToRotations = 7.851;
+
+float distanceToEncoderValue(float distance){
+	return (distance/inchesToRotations) * 360;
+}
+
+void zeroMotors(){
+	nMotorEncoder[motorB] = 0;
+	nMotorEncoder[motorC] = 0;
+	motor[motorB] = 0;
+	motor[motorC] = 0;
+}
+
+void moveRobot(float distance, int direction, bool turn){
+	if(turn){
+		zeroMotors();
+
+		if(direction == -1){
+			nMotorEncoderTarget[motorC] = distanceToEncoderValue(distance);
+
+			motor[motorB] = -50;
+			motor[motorC] = 50;
+
+			while(nMotorRunState[motorC] != runStateIdle){
+			}
+		}
+		else{
+			nMotorEncoderTarget[motorB] = distanceToEncoderValue(distance);
+
+			motor[motorB] = 50;
+			motor[motorC] = -50;
+
+			while(nMotorRunState[motorB] != runStateIdle){
+			}
+		}
+	}
+	else{
+		zeroMotors();
+
+		nMotorEncoderTarget[motorB] = distanceToEncoderValue(distance) * direction;
+		nMotorEncoderTarget[motorC] = distanceToEncoderValue(distance) * direction;
+
+		motor[motorB] = 50 * direction;
+		motor[motorC] = 50 * direction;
+
+		while(nMotorRunState[motorB] != runStateIdle){
+		}
+	}
+		zeroMotors();
 }
 
 void parkingMovement(int half){
-	if(half == 1){
-		moveRobot(turnDistance, true); //Need to change moveRobot to handle a turn
-	}
-	else{
-		moveRobot(turnDistance, false); //Need to change moveRobot to handle a turn
-	}
 
-	moveRobot(turnToLine, true);
+	moveRobot(turnDistance, backward, true); //Need to change moveRobot to handle a turn
 
-	if(half ==1){
-		moveRobot(turnDistance, true);
-	}
-	else{
-		moveRobot(turnDistance, false);
-	}
+	moveRobot(turnToLine, backward, false);
 
-	moveRobot(lineToPark, true);
+	moveRobot(turnDistance, forward, true);
+
+	moveRobot(lineToPark, forward, false);
 }
 
 void depositBlock(){
 }
 
 void differentScoringMovement(){
-	int time = 0;
+	int timing = 0;
+	int timer = 0;
+
+
 	motor[motorB] = 50;
 	motor[motorC] = 50;
-	
+
 	while(HTIRS2readDCDir(irSeeker) != 5){
-		time++;
+		if(timing != -1){
+			//nxtDisplayBigStringAt(0, 31,"%d,%d",timing, timer);
+			timing = timing + 1;
+		}
 	}
-	
-	motor[motorB] = 0;
-	motor[motorC] = 0;
-	
+
+	zeroMotors();
+	wait10Msec(500);
+
 	//make 45 degree turn and go forward
 	motor[motorB] = -50;
 	motor[motorC] = -50;
-	
-	int timer = 0;
-	
-	while(timer < time){
-		timer++;
+
+
+
+	while(HTIRS2readDCDir(irSeeker) != -1){
+		if(timer < timing + 50){
+			//nxtDisplayBigStringAt(0, 31,"%d,%d",timing, timer);
+			timer = timer + 1;
+		}
+		else
+			break;
 	}
-	
-	motor[motorB] = 0;
-	motor[motorC] = 0;
+
+	zeroMotors();
+	wait10Msec(500);
+
 }
 
 int convertDistance(int distance){
 	return 1;
 }
-
+/*
 void scoringMovement(){
 	int sensorValue = HTIRS2readDCDir(irSeeker);
 
@@ -112,13 +166,11 @@ void scoringMovement(){
 	moveRobot(outerToTurn, true);
 	parkingMovement(1);
 }
-
+*/
 task main()
 {
 	tHTIRS2DSPMode _mode = DSP_1200;
-	while(true){
-		int sensorDirection = HTIRS2readDCDir(irSeeker);
-		nxtDisplayBigStringAt(0, 31,"%d",sensorDirection);
-	}
-	//scoringMovement();
+	differentScoringMovement();
+	parkingMovement(1);
+
 }
