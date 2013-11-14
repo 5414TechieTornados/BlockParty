@@ -41,6 +41,32 @@ void parkingMovement(int half){
 void depositBlock(){
 }
 
+void differentScoringMovement(){
+	int time = 0;
+	motor[motorB] = 50;
+	motor[motorC] = 50;
+	
+	while(HTIRS2readDCDir(irSeeker) != 5){
+		time++;
+	}
+	
+	motor[motorB] = 0;
+	motor[motorC] = 0;
+	
+	//make 45 degree turn and go forward
+	motor[motorB] = -50;
+	motor[motorC] = -50;
+	
+	int timer = 0;
+	
+	while(timer < time){
+		timer++;
+	}
+	
+	motor[motorB] = 0;
+	motor[motorC] = 0;
+}
+
 int convertDistance(int distance){
 	return 1;
 }
