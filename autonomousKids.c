@@ -4,26 +4,59 @@
 #include "drivers/hitechnic-irseeker-v2.h"
 
 const float inchesToRotations = 7.851;
+const float turnDistance = 3.4;
+const float turnToLine = 33;
+const float forwardSpeed = 50.0;
+const float turnSpeed = 25;
+string forward = "forward";
+string backwards = "backwards";
+string right = "right";
+string left = "left";
 
 float distanceToEncoderValue(float distance){
 	return (distance/inchesToRotations) * 360;
 }
 
-task main()
-{
-	tHTIRS2DSPMode _mode = DSP_1200;
-	int direction = HTIRS2readDCDir(irSeeker);
-
+void moveRobot(float distance, float speed, string direction){
 	nMotorEncoder[motorB] = 0;
 	nMotorEncoder[motorC] = 0;
 
+	nMotorEncoderTarget[motorB] = distanceToEncoderValue(distance);
+	nMotorEncoderTarget[motorC] = distanceToEncoderValue(distance);
 
+	if(forward == direction){
+		motor[motorB] = speed;
+		motor[motorC] = speed;
+	}
+	else if(backwards == direction){
+		motor[motorB] = -speed;
+		motor[motorC] = -speed;
+	}
+	else if(right == direction){
+		motor[motorB] = -speed;
+		motor[motorC] = speed;
+	}
+	else if(left == direction){
+		motor[motorB] = speed;
+		motor[motorC] = -speed;
+	}
 
+	while(nMotorRunState[motorB] != runStateIdle || nMotorRunState[motorC] != runStateIdle){
+	}
+		motor[motorB] = 0;
+		motor[motorC] = 0;
+}
 
-/*	motor[motorB] = 50;
-	motor[motorC] = 50;
+task main()
+{
+	wait10Msec(300);
 
-	while(HTIRS2readDCDir(irSeeker) !=5){
-	}*/
+	tHTIRS2DSPMode _mode = DSP_1200;
+	int direction = HTIRS2readDCDir(irSeeker);
+
+	moveRobot(turnDistance, turnSpeed, left);
+	moveRobot(turnToLine, forwardSpeed, forward);
+	moveRobot(turnDistance, turnSpeed, right);
+	moveRobot(turnToLine, forwardSpeed, forward);
 
 }
