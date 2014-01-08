@@ -48,7 +48,8 @@ const float seekerReadWait = 25;
 //Servo, Sensor, and Motor values
 const float autoServoValue = 150;
 const float initializeMotorValue = 100;
-const float autoSensorValue = 5;
+const float autoSensorLowValue = 5;
+const float autoSensorHighValue = 6;
 
 /*
 	Converts measured distance of field to values robot encoders use
@@ -172,8 +173,9 @@ task main()
 	moveRobot(firstBasketInches, forwardSpeed, forward);
 	wait1Msec(seekerReadWait);
 
+	int seekerValue = HTIRS2readACDir(IRRight);
 	//Sensor found, proceed to scoring
-	if(HTIRS2readDCDir(IRLeft) == autoSensorValue){
+	if(seekerValue >= autoSensorLowValue && seekerValue <= autoSensorHighValue){
 		scoreRobot(firstBasketInches - 1, forwardSpeed, backwards);
 	}
 
@@ -181,8 +183,9 @@ task main()
 	moveRobot(secondBasketInches, forwardSpeed, forward);
 	wait1Msec(seekerReadWait);
 
+	seekerValue = HTIRS2readACDir(IRRight);
 	//Sensor found, proceed to scoring
-	if(HTIRS2readACDir(IRLeft) == autoSensorValue){
+	if(seekerValue >= autoSensorLowValue && seekerValue <= autoSensorHighValue){
 		scoreRobot(firstBasketInches + secondBasketInches - 1, forwardSpeed, backwards);
 	}
 
@@ -191,7 +194,7 @@ task main()
 	wait1Msec(seekerReadWait);
 
 	//Sensor found, proceed to scoring
-	if(HTIRS2readACDir(IRLeft) == autoSensorValue){
+	if(seekerValue >= autoSensorLowValue && seekerValue <= autoSensorHighValue){
 		scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches- 1, forwardSpeed, backwards);
 	}
 

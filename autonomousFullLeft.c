@@ -173,7 +173,7 @@ task main()
 	wait1Msec(seekerReadWait);
 
 	//Sensor found, proceed to scoring
-	if(HTIRS2readDCDir(IRLeft) == autoSensorValue){
+	if(HTIRS2readACDir(IRLeft) == autoSensorValue){
 		scoreRobot(firstBasketInches - 1, forwardSpeed, backwards);
 	}
 
