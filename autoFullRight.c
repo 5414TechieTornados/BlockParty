@@ -9,8 +9,8 @@
 #pragma config(Motor,  mtr_S1_C4_1,     frontLow,      tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_2,     motorI,        tmotorTetrix, openLoop)
 #pragma config(Servo,  srvo_S1_C3_1,    scoop,                tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_2,    AutoLeft,             tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_3,    AutoRight,            tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_2,    AutoRight,            tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_3,    AutoLeft,             tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_6,    servo6,               tServoNone)
@@ -41,12 +41,12 @@ string leftDirection = "left";
 
 //Wait times
 const float preArmScoreWait = 500;
-const float postArmScoreWait = 750;
+const float postArmScoreWait = 1000;
 const float initializeMotorWait = 250;
 const float seekerReadWait = 25;
 
 //Servo, Sensor, and Motor values
-const float autoServoValue = 150;
+const float autoServoValue = 200;
 const float initializeMotorValue = 100;
 const float autoSensorLowValue = 5;
 const float autoSensorHighValue = 6;
@@ -65,12 +65,8 @@ float convertInches(float inches){
 */
 void scoreBlock(){
 
-	servoTarget[AutoLeft] = 0;
-	servoTarget[AutoRight] = 0;
-
 	wait1Msec(preArmScoreWait);
 
-	servoTarget[AutoLeft] = autoServoValue;
 	servoTarget[AutoRight] = autoServoValue;
 
 	//used to make sure the arm finishes scoring before the robot moves
@@ -123,9 +119,9 @@ void moveRobot(float distance, float speed, string direction){
 */
 void parkRobot(){
 		moveRobot(turnDistanceRight, turnSpeed, rightDirection);
-		moveRobot(turnToLine, forwardSpeed, forward);
+		moveRobot(turnToLine, 100, forward);
 		moveRobot(turnDistanceLeft, turnSpeed, leftDirection);
-		moveRobot(turnToLine, forwardSpeed, forward);
+		moveRobot(turnToLine, 100, forward);
 }
 
 /*
@@ -174,6 +170,7 @@ task main()
 	wait1Msec(seekerReadWait);
 
 	int seekerValue = HTIRS2readACDir(IRRight);
+	nxtDisplayTextLine(0,"Sensor Value %d ",seekerValue);
 	//Sensor found, proceed to scoring
 	if(seekerValue >= autoSensorLowValue && seekerValue <= autoSensorHighValue){
 		scoreRobot(firstBasketInches - 1, forwardSpeed, backwards);
@@ -184,6 +181,7 @@ task main()
 	wait1Msec(seekerReadWait);
 
 	seekerValue = HTIRS2readACDir(IRRight);
+	nxtDisplayTextLine(0,"Sensor Value %d ",seekerValue);
 	//Sensor found, proceed to scoring
 	if(seekerValue >= autoSensorLowValue && seekerValue <= autoSensorHighValue){
 		scoreRobot(firstBasketInches + secondBasketInches - 1, forwardSpeed, backwards);
@@ -193,6 +191,8 @@ task main()
 	moveRobot(thirdBasketInches, forwardSpeed, forward);
 	wait1Msec(seekerReadWait);
 
+	seekerValue = HTIRS2readACDir(IRRight);
+	nxtDisplayTextLine(0,"Sensor Value %d ",seekerValue);
 	//Sensor found, proceed to scoring
 	if(seekerValue >= autoSensorLowValue && seekerValue <= autoSensorHighValue){
 		scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches- 1, forwardSpeed, backwards);

@@ -9,8 +9,8 @@
 #pragma config(Motor,  mtr_S1_C4_1,     frontLow,      tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_2,     motorI,        tmotorTetrix, openLoop)
 #pragma config(Servo,  srvo_S1_C3_1,    scoop,                tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_2,    AutoLeft,             tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_3,    AutoRight,            tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_2,    AutoRight,            tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_3,    AutoLeft,             tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_6,    servo6,               tServoNone)
@@ -40,13 +40,13 @@ string rightDirection = "right";
 string leftDirection = "left";
 
 //Wait times
-const float preArmScoreWait = 500;
-const float postArmScoreWait = 750;
+const float preArmScoreWait = 600;
+const float postArmScoreWait = 1000;
 const float initializeMotorWait = 250;
 const float seekerReadWait = 25;
 
 //Servo, Sensor, and Motor values
-const float autoServoValue = 150;
+const float autoServoValue = 180;
 const float initializeMotorValue = 100;
 const float autoSensorValue = 5;
 
@@ -65,12 +65,12 @@ float convertInches(float inches){
 void scoreBlock(){
 
 	servoTarget[AutoLeft] = 0;
-	servoTarget[AutoRight] = 0;
+	//servoTarget[AutoRight] = 0;
 
 	wait1Msec(preArmScoreWait);
 
 	servoTarget[AutoLeft] = autoServoValue;
-	servoTarget[AutoRight] = autoServoValue;
+	//servoTarget[AutoRight] = autoServoValue;
 
 	//used to make sure the arm finishes scoring before the robot moves
 	wait1Msec(postArmScoreWait);
