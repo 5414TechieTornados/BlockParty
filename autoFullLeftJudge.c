@@ -8,7 +8,7 @@
 #pragma config(Motor,  mtr_S1_C2_2,     flag,          tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_1,     frontLow,      tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_2,     motorI,        tmotorTetrix, openLoop)
-#pragma config(Servo,  srvo_S1_C3_1,    servo1,               tServoNone)
+#pragma config(Servo,  srvo_S1_C3_1,    scoop,                tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_2,    AutoRight,            tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_3,    AutoLeft,             tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_4,    servo4,               tServoNone)
@@ -21,6 +21,8 @@
 
 //Basket measurements
 const float firstBasketInches = 18;
+const float secondBasketInches = 8;
+const float thirdBasketInches = 14;
 
 //Turning measurements
 const float turnDistanceLeft = 15;
@@ -38,13 +40,15 @@ string rightDirection = "right";
 string leftDirection = "left";
 
 //Wait times
-const float preArmScoreWait = 500;
+const float preArmScoreWait = 600;
 const float postArmScoreWait = 1000;
 const float initializeMotorWait = 250;
+const float seekerReadWait = 25;
 
 //Servo, Sensor, and Motor values
-const float autoServoValue = 200;
+const float autoServoValue = 180;
 const float initializeMotorValue = 100;
+const float autoSensorValue = 5;
 
 /*
 	Converts measured distance of field to values robot encoders use
@@ -60,9 +64,13 @@ float convertInches(float inches){
 */
 void scoreBlock(){
 
+	servoTarget[AutoLeft] = 0;
+	//servoTarget[AutoRight] = 0;
+
 	wait1Msec(preArmScoreWait);
 
-	servoTarget[AutoRight] = autoServoValue;
+	servoTarget[AutoLeft] = autoServoValue;
+	//servoTarget[AutoRight] = autoServoValue;
 
 	//used to make sure the arm finishes scoring before the robot moves
 	wait1Msec(postArmScoreWait);
@@ -113,9 +121,9 @@ void moveRobot(float distance, float speed, string direction){
 	Used to move the robot from the starting position to the bridge
 */
 void parkRobot(){
-		moveRobot(turnDistanceRight, turnSpeed, rightDirection);
-		moveRobot(turnToLine, forwardSpeed, forward);
 		moveRobot(turnDistanceLeft, turnSpeed, leftDirection);
+		moveRobot(turnToLine, forwardSpeed, forward);
+		moveRobot(turnDistanceRight, turnSpeed, rightDirection);
 		moveRobot(turnToLine, forwardSpeed, forward);
 }
 
@@ -154,7 +162,7 @@ void scoreRobot(float distance, float speed, string direction){
 
 task main()
 {
-	waitForStart();
+	wait1Msec(200);
 	initializeRobot();
 
 	//sets seeker value
@@ -162,6 +170,32 @@ task main()
 
 	//Starts the first basket movements
 	moveRobot(firstBasketInches, forwardSpeed, forward);
-	scoreRobot(firstBasketInches - 1, forwardSpeed, backwards);
+	wait1Msec(seekerReadWait);
 
+	//Sensor found, proceed to scoring
+	if(HTIRS2readACDir(IRLeft) == autoSensorValue){
+		scoreRobot(firstBasketInches - 1, forwardSpeed, backwards);
+	}
+
+	//No sensor found so move to second basket movements
+	moveRobot(secondBasketInches, forwardSpeed, forward);
+	wait1Msec(seekerReadWait);
+
+	//Sensor found, proceed to scoring
+	if(HTIRS2readACDir(IRLeft) == autoSensorValue){
+		scoreRobot(firstBasketInches + secondBasketInches - 1, forwardSpeed, backwards);
+	}
+
+	//No sensor found so move to third basket movements
+	moveRobot(thirdBasketInches, forwardSpeed, forward);
+	wait1Msec(seekerReadWait);
+
+	//Sensor found, proceed to scoring
+	if(HTIRS2readACDir(IRLeft) == autoSensorValue){
+		scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches- 1, forwardSpeed, backwards);
+	}
+
+	//No sensor found so score in fourth basket
+	moveRobot(secondBasketInches, forwardSpeed, forward);
+	scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches + secondBasketInches - 1, forwardSpeed, backwards);
 }

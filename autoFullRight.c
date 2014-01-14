@@ -119,9 +119,9 @@ void moveRobot(float distance, float speed, string direction){
 */
 void parkRobot(){
 		moveRobot(turnDistanceRight, turnSpeed, rightDirection);
-		moveRobot(turnToLine, 100, forward);
+		moveRobot(turnToLine, forwardSpeed, forward);
 		moveRobot(turnDistanceLeft, turnSpeed, leftDirection);
-		moveRobot(turnToLine, 100, forward);
+		moveRobot(turnToLine, forwardSpeed, forward);
 }
 
 /*

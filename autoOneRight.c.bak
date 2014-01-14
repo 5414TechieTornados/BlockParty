@@ -39,11 +39,11 @@ string leftDirection = "left";
 
 //Wait times
 const float preArmScoreWait = 500;
-const float postArmScoreWait = 1000;
+const float postArmScoreWait = 750;
 const float initializeMotorWait = 250;
 
 //Servo, Sensor, and Motor values
-const float autoServoValue = 200;
+const float autoServoValue = 150;
 const float initializeMotorValue = 100;
 
 /*

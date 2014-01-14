@@ -7,8 +7,8 @@
 #pragma config(Motor,  mtr_S1_C4_1,     frontLow,      tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_2,     scoop,         tmotorTetrix, openLoop)
 #pragma config(Servo,  srvo_S1_C3_1,    scoop,                tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_2,    tele1,                tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_3,    tele2,                tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_2,    auto1,                tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_3,    auto2,                tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_6,    servo6,               tServoNone)
@@ -54,91 +54,108 @@ void initializeRobot()
   return;
 }
 
-//Basic function for moving the robot
-
-	int getMotorOutput(int joystickValue){
-
-    int directionValue = joystickValue / abs(joystickValue);
-  	float ratio = (joystickValue * joystickValue) / (MAX_JOYSTICK * MAX_JOYSTICK);
-		return (ratio * (MOTOR_POWER * MOTOR_POWER)) * directionValue;
+/*
+Does the calculation to turn the joystick values into motor values
+*/
+int getMotorOutput(int joystickValue){
+	int directionValue = joystickValue / abs(joystickValue);
+ 	float ratio = (joystickValue * joystickValue) / (MAX_JOYSTICK * MAX_JOYSTICK);
+	return (ratio * (MOTOR_POWER * MOTOR_POWER)) * directionValue;
+}
+/*
+Moves the autonomous arm out of the way for the flag motor
+*/
+void moveAutoArm (){
+	if(joy1Btn(9)){
+   	servoTarget[auto2] = ServoValue(auto2) + 30;
+	}
+	else if(joy1Btn(10)){
+		servoTarget[auto2] = ServoValue(auto2) - 30;
 	}
 
-	void moveAutoArm (){
-		if(joy1Btn(9)){
-    	servoTarget[tele2] = ServoValue(tele2) + 30;
-    	servoTarget[tele1] = ServoValue(tele1) + 30;
-		}
-		else if(joy1Btn(10)){
-			servoTarget[tele2] = ServoValue(tele2) - 30;
-			servoTarget[tele1] = ServoValue(tele1) - 30;
-		}
+	if(joy2Btn(9)){
+   	servoTarget[auto1] = ServoValue(auto1) + 30;
 	}
-
-	void moveLift2() {
-			 if(joy2Btn(6)){
-			motor[frontLow] = 100;
-		}
-		else if (joy2Btn(5)){
-			motor[frontLow] = -100;
-		}
-		else{
-			motor[frontLow] = 0;
-		}
-
-	  if(joy2Btn(8)){
-			motor[frontHigh] = 100;
-		}
-		else if(joy2Btn(7)){
-			motor[frontHigh] = -100;
-		}
-		else{
-			motor[frontHigh] = 0;
-		}
-	}
-
-	void moveBucket() {
-
-    if(joy1Btn(3)){
-			motor[scoop] = 40;
-		}
-		else if(joy1Btn(1)){
-			motor[scoop] = -40;
-		}
-		else{
-			motor[scoop] = 0;
-		}
-	}
-
-  void moveFlag() {
-
-    if(joy1Btn(2)){
-			motor[flag] = 07;
-		}
-		else if(joy1Btn(4)){
-			motor[flag] = 100;
-		}
-		else{
-			motor[flag] = 0;
+	else if(joy2Btn(10)){
+		servoTarget[auto1] = ServoValue(auto1) - 30;
 	}
 }
-  void drive()  {
 
-    motor[right] = getMotorOutput(joystick.joy1_y2);
-		motor[left] = getMotorOutput(joystick.joy1_y1);
+/*
+Moves the front and lower parts of the arm lift
+*/
+void moveLift() {
+	if(joy2Btn(6)){
+		motor[frontLow] = 100;
+	}
+	else if (joy2Btn(5)){
+		motor[frontLow] = -100;
+	}
+	else{
+		motor[frontLow] = 0;
+	}
 
+	if(joy2Btn(8)){
+		motor[frontHigh] = 100;
+	}
+	else if(joy2Btn(7)){
+		motor[frontHigh] = -100;
+	}
+	else{
+		motor[frontHigh] = 0;
+	}
+}
+
+/*
+Moves the motor that raises and lowers the bucket
+*/
+void moveBucket() {
+	if(joy1Btn(3)){
+		motor[scoop] = 40;
+	}
+	else if(joy1Btn(1)){
+		motor[scoop] = -40;
+	}
+	else{
+		motor[scoop] = 0;
+	}
+}
+
+/*
+Moves the motor to raise the flag either slowly or quickly
+*/
+void moveFlag() {
+	if(joy1Btn(2)){
+		motor[flag] = 07;
+	}
+	else if(joy1Btn(4)){
+		motor[flag] = 100;
+	}
+	else{
+		motor[flag] = 0;
+	}
+}
+
+/*
+Method that assigns the correct values to drive the motors
+*/
+void drive()  {
+	motor[right] = getMotorOutput(joystick.joy1_y2);
+	motor[left] = getMotorOutput(joystick.joy1_y1);
 }
 
 task main()
 {
-  bFloatDuringInactiveMotorPWM = false;
-  // wait for start of tele-op phase
-	//tor[right] = 100;
+	// wait for start of tele-op phase
+	waitForStart();
 
-  //basic instructions for robot
+	bFloatDuringInactiveMotorPWM = false;
+
+  //Game loop for robot
   while (true){
   	getJoystickSettings(joystick);
 		drive();
-		moveLift2();
+		moveLift();
 		moveBucket();
 		moveFlag();
 		moveAutoArm();

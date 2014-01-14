@@ -60,9 +60,10 @@ float convertInches(float inches){
 */
 void scoreBlock(){
 
+	servoTarget[AutoLeft] = 0;
 	wait1Msec(preArmScoreWait);
 
-	servoTarget[AutoRight] = autoServoValue;
+	servoTarget[AutoLeft] = autoServoValue;
 
 	//used to make sure the arm finishes scoring before the robot moves
 	wait1Msec(postArmScoreWait);
@@ -113,9 +114,9 @@ void moveRobot(float distance, float speed, string direction){
 	Used to move the robot from the starting position to the bridge
 */
 void parkRobot(){
-		moveRobot(turnDistanceRight, turnSpeed, rightDirection);
-		moveRobot(turnToLine, forwardSpeed, forward);
 		moveRobot(turnDistanceLeft, turnSpeed, leftDirection);
+		moveRobot(turnToLine, forwardSpeed, forward);
+		moveRobot(turnDistanceRight, turnSpeed, rightDirection);
 		moveRobot(turnToLine, forwardSpeed, forward);
 }
 
@@ -163,5 +164,4 @@ task main()
 	//Starts the first basket movements
 	moveRobot(firstBasketInches, forwardSpeed, forward);
 	scoreRobot(firstBasketInches - 1, forwardSpeed, backwards);
-
 }
