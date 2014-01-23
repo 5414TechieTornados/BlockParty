@@ -164,7 +164,7 @@ void scoreRobot(float distance, float speed, string direction){
 task main()
 {
 	waitForStart();
-	wait1Msec(1200);
+	wait1Msec(12000);
 	initializeRobot();
 
 	//sets seeker value

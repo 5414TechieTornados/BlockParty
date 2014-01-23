@@ -17,7 +17,7 @@
 //Define class variables
 const float MAX_JOYSTICK = 128.0;
 const float MOTOR_POWER = 15.0;
-const float SLOW_MOTOR_POWER = 7.5;
+const float SLOW_MOTOR_POWER = 6.0;
 bool fasterSpeed = true;
 
 
@@ -147,7 +147,7 @@ Moves the motor to raise the flag either slowly or quickly
 */
 void moveFlag() {
 	if(joy1Btn(2)){
-		motor[flag] = 07;
+		motor[flag] = -100;
 	}
 	else if(joy1Btn(4)){
 		motor[flag] = 100;
