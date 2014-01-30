@@ -25,9 +25,12 @@ const float secondBasketInches = 8;
 const float thirdBasketInches = 14;
 
 //Turning measurements
-const float turnDistanceLeft = 15;
-const float turnDistanceRight = 13;
-const float turnToLine = 29;
+float turnDistanceLeft = 15;
+float turnDistanceRight = 13;
+float turnToLine = 29;
+const float scoringTolerance = 1;
+const float parkingTolerance = 2;
+float returnTolerance = 0;
 
 //Speeds
 const float forwardSpeed = 50.0;
@@ -50,6 +53,10 @@ const float seekerReadWait = 25;
 const float autoServoValue = 180;
 const float initializeMotorValue = 100;
 const float autoSensorValue = 5;
+
+float convertRotations(float rotationValue){
+	return (rotationValue * 9.42)/1440;
+}
 
 /*
 	Converts measured distance of field to values robot encoders use
@@ -84,14 +91,16 @@ void scoreBlock(){
 		speed - the speed to travel
 		direction - the direction to travel
 */
-void moveRobot(float distance, float speed, string direction){
+float moveRobot(float distance, float speed, string direction, float tolerance){
 	//reset encoder values
 	nMotorEncoder[right] = 0;
 	nMotorEncoder[left] = 0;
 
+	float target = convertInches(distance);
+
 	//setting the encoder target
-	nMotorEncoderTarget[right] = convertInches(distance);
-	nMotorEncoderTarget[left] = convertInches(distance);
+	nMotorEncoderTarget[right] = target;
+	nMotorEncoderTarget[left] = target;
 
 	//blocks used to set correct motor speeds
 	if(forward == direction){
@@ -113,19 +122,25 @@ void moveRobot(float distance, float speed, string direction){
 
 	//Move the robot until encoder target is reached
 	while(nMotorRunState[right] != runStateIdle || nMotorRunState[left] != runStateIdle){
+		if(abs(target - nMotorEncoder[right]) < tolerance || abs(target - nMotorEncoder[left]) < tolerance){
+			break;
+		}
 	}
 		motor[right] = 0;
 		motor[left] = 0;
+
+
+		return ((nMotorEncoderTarget[right] - nMotorEncoder[right]) + (nMotorEncoderTarget[left] - nMotorEncoder[left]))/2;
 }
 
 /*
 	Used to move the robot from the starting position to the bridge
 */
 void parkRobot(){
-		moveRobot(turnDistanceLeft, turnSpeed, leftDirection);
-		moveRobot(turnToLine, forwardSpeed, forward);
-		moveRobot(turnDistanceRight, turnSpeed, rightDirection);
-		moveRobot(turnToLine, forwardSpeed, forward);
+		moveRobot(turnDistanceLeft, turnSpeed, leftDirection, parkingTolerance);
+		moveRobot(turnToLine, forwardSpeed, forward, parkingTolerance);
+		moveRobot(turnDistanceRight, turnSpeed, rightDirection, parkingTolerance);
+		moveRobot(turnToLine, forwardSpeed, forward, parkingTolerance);
 }
 
 /*
@@ -156,7 +171,7 @@ void stopRobot(){
 */
 void scoreRobot(float distance, float speed, string direction){
 	scoreBlock();
-	moveRobot(distance, speed, direction);
+	moveRobot(distance, speed, direction, 0);
 	parkRobot();
 	stopRobot();
 }
@@ -165,12 +180,14 @@ task main()
 {
 	waitForStart();
 	initializeRobot();
+	wait1Msec(12000);
+
 
 	//sets seeker value
 	tHTIRS2DSPMode _mode = DSP_1200;
 
 	//Starts the first basket movements
-	moveRobot(firstBasketInches, forwardSpeed, forward);
+	returnTolerance += moveRobot(firstBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
 	wait1Msec(seekerReadWait);
 
 	//Sensor found, proceed to scoring
@@ -179,7 +196,7 @@ task main()
 	}
 
 	//No sensor found so move to second basket movements
-	moveRobot(secondBasketInches, forwardSpeed, forward);
+	returnTolerance += moveRobot(secondBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
 	wait1Msec(seekerReadWait);
 
 	//Sensor found, proceed to scoring
@@ -188,15 +205,15 @@ task main()
 	}
 
 	//No sensor found so move to third basket movements
-	moveRobot(thirdBasketInches, forwardSpeed, forward);
+	returnTolerance += moveRobot(thirdBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
 	wait1Msec(seekerReadWait);
 
 	//Sensor found, proceed to scoring
 	if(HTIRS2readACDir(IRLeft) == autoSensorValue){
-		scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches- 1, forwardSpeed, backwards);
+		scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches - 1, forwardSpeed, backwards);
 	}
 
 	//No sensor found so score in fourth basket
-	moveRobot(secondBasketInches, forwardSpeed, forward);
+	returnTolerance += moveRobot(secondBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
 	scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches + secondBasketInches - 1, forwardSpeed, backwards);
 }
