@@ -125,7 +125,7 @@ void parkRobot(){
 		moveRobot(turnDistanceLeft, turnSpeed, leftDirection);
 		moveRobot(turnToLine, forwardSpeedMove, forward);
 		moveRobot(turnDistanceRight, turnSpeed, rightDirection);
-		moveRobot(turnToLine, forwardSpeedMove, forward);
+		moveRobot(turnToLine + .5, forwardSpeedMove, forward);
 }
 
 /*

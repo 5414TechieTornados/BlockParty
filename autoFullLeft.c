@@ -32,6 +32,7 @@ const float turnToLine = 29;
 //Speeds
 const float forwardSpeed = 50.0;
 const float turnSpeed = 40;
+const float forwardSpeedRamp = 30;
 
 //Directions
 string forward = "forward";

@@ -41,15 +41,16 @@ string rightDirection = "right";
 string leftDirection = "left";
 
 //Wait times
-const float preArmScoreWait = 600;
+const float preArmScoreWait = 500;
 const float postArmScoreWait = 1000;
 const float initializeMotorWait = 250;
 const float seekerReadWait = 25;
 
 //Servo, Sensor, and Motor values
-const float autoServoValue = 180;
+const float autoServoValue = 200;
 const float initializeMotorValue = 100;
-const float autoSensorValue = 5;
+const float autoSensorLowValue = 5;
+const float autoSensorHighValue = 6;
 
 /*
 	Converts measured distance of field to values robot encoders use
@@ -65,13 +66,9 @@ float convertInches(float inches){
 */
 void scoreBlock(){
 
-	servoTarget[AutoLeft] = 0;
-	//servoTarget[AutoRight] = 0;
-
 	wait1Msec(preArmScoreWait);
 
-	servoTarget[AutoLeft] = autoServoValue;
-	//servoTarget[AutoRight] = autoServoValue;
+	servoTarget[AutoRight] = autoServoValue;
 
 	//used to make sure the arm finishes scoring before the robot moves
 	wait1Msec(postArmScoreWait);
@@ -122,9 +119,9 @@ void moveRobot(float distance, float speed, string direction){
 	Used to move the robot from the starting position to the bridge
 */
 void parkRobot(){
-		moveRobot(turnDistanceLeft, turnSpeed, leftDirection);
-		moveRobot(turnToLine, forwardSpeedMove, forward);
 		moveRobot(turnDistanceRight, turnSpeed, rightDirection);
+		moveRobot(turnToLine, forwardSpeedMove, forward);
+		moveRobot(turnDistanceLeft, turnSpeed, leftDirection);
 		moveRobot(turnToLine, forwardSpeedMove, forward);
 }
 
@@ -156,7 +153,7 @@ void stopRobot(){
 */
 void scoreRobot(float distance, float speed, string direction){
 	scoreBlock();
-	moveRobot(distance, forwardSpeedMove, direction);
+	moveRobot(distance, speed, direction);
 	parkRobot();
 	stopRobot();
 }
@@ -165,35 +162,40 @@ task main()
 {
 	waitForStart();
 	initializeRobot();
-	wait1Msec(12000);
 
 	//sets seeker value
 	tHTIRS2DSPMode _mode = DSP_1200;
 
 	//Starts the first basket movements
 	moveRobot(firstBasketInches, forwardSpeedBlock, forward);
-	//wait1Msec(seekerReadWait);
+	wait1Msec(seekerReadWait);
 
+	int seekerValue = HTIRS2readACDir(IRRight);
+	nxtDisplayTextLine(0,"Sensor Value %d ",seekerValue);
 	//Sensor found, proceed to scoring
-	if(HTIRS2readACDir(IRLeft) == autoSensorValue){
+	if(seekerValue >= autoSensorLowValue && seekerValue <= autoSensorHighValue){
 		scoreRobot(firstBasketInches - 1, forwardSpeedMove, backwards);
 	}
 
 	//No sensor found so move to second basket movements
 	moveRobot(secondBasketInches, forwardSpeedBlock, forward);
-	//wait1Msec(seekerReadWait);
+	wait1Msec(seekerReadWait);
 
+	seekerValue = HTIRS2readACDir(IRRight);
+	nxtDisplayTextLine(0,"Sensor Value %d ",seekerValue);
 	//Sensor found, proceed to scoring
-	if(HTIRS2readACDir(IRLeft) == autoSensorValue){
+	if(seekerValue >= autoSensorLowValue && seekerValue <= autoSensorHighValue){
 		scoreRobot(firstBasketInches + secondBasketInches - 1, forwardSpeedMove, backwards);
 	}
 
 	//No sensor found so move to third basket movements
 	moveRobot(thirdBasketInches, forwardSpeedBlock, forward);
-	//wait1Msec(seekerReadWait);
+	wait1Msec(seekerReadWait);
 
+	seekerValue = HTIRS2readACDir(IRRight);
+	nxtDisplayTextLine(0,"Sensor Value %d ",seekerValue);
 	//Sensor found, proceed to scoring
-	if(HTIRS2readACDir(IRLeft) == autoSensorValue){
+	if(seekerValue >= autoSensorLowValue && seekerValue <= autoSensorHighValue){
 		scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches- 1, forwardSpeedMove, backwards);
 	}
 
