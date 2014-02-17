@@ -128,7 +128,7 @@ void moveRobot(float distance, float speed, string direction, float tolerance){
 void parkRobot(){
 		int dynamicDistance = right?turnDistanceRight:turnDistanceLeft;
 		string dynamicDirection = right?rightDirection:leftDirection;
-		moveRobot(dynamicDistance, turnSpeed, dynamicDirection, parkingTolerance);
+		moveRobot(dynamicDistance + 1, turnSpeed, dynamicDirection, parkingTolerance);
 		moveRobot(turnToLine, returnSpeed, forward, parkingTolerance);
 		moveRobot(dynamicDistance, turnSpeed, dynamicDirection, parkingTolerance);
 		moveRobot(turnToLine + 2, returnSpeed, backwards, parkingTolerance);
@@ -178,7 +178,7 @@ void startRobot(){
 	wait1Msec(seekerReadWait);
 
 	//Sensor found, proceed to scoring
-	if(HTIRS2readACDir(right?IRRight:IRLeft) == autoSensorValue){
+	if(HTIRS2readACDir(right?IRRight:IRLeft) == autoSensorValue || !full){
 		scoreRobot(firstBasketInches - 1, returnSpeed, backwards);
 	}
 

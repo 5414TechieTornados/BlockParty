@@ -19,10 +19,10 @@ void switchInt(int *ptr, TButtons btn)
 	}
 }
 
-bool right=true;
+bool right=false;
 bool full=true;
-int scoreTol=0;
-int parkTol=0;
+int scoreTol=1;
+int parkTol=2;
 int delay=0;
 
 task runMenu()
@@ -35,30 +35,30 @@ task runMenu()
 
 	while(true){
 		if(delay<0){
-			delay=0;
-		} else if(delay>10){
-			delay = 10;
+			delay=15;
+		} else if(delay>15){
+			delay = 0;
 		}
 		if(scoreTol<0){
+			scoreTol = 5;
+		} else if(scoreTol>5){
 			scoreTol = 0;
-		} else if(scoreTol>15){
-			scoreTol = 15;
 		}
 		if(parkTol<0){
-			parkTol = 0;
-		} else if(parkTol>5){
 			parkTol = 5;
+		} else if(parkTol>5){
+			parkTol = 0;
 		}
 
 
 
 		nxtDisplayString(0,"Side:    %s",right?"right":"left ");
 		nxtDisplayString(1,"Type: %s",full?"first":"full  ");
-		nxtDisplayString(2,"Score Tolerance:   %2i",scoreTol);
-		nxtDisplayString(3,"Park Tolerance:   %3i",parkTol);
+		nxtDisplayString(2,"Score Tol:   %2i",scoreTol);
+		nxtDisplayString(3,"Park Tol:   %3i",parkTol);
 		nxtDisplayString(4,"Delay:   %2i",delay);
 
-		nxtDisplayTextLine(7,"%s,%s,%i,%i,%i",right?"R":"L",full?"In":"Out",scoreTol,parkTol,delay);
+		nxtDisplayTextLine(7,"%s,%s,%i,%i,%i",right?"R":"L",full?"Ful":"1st",scoreTol,parkTol,delay);
 
 		if(currVar == &right)
 		{
@@ -138,5 +138,5 @@ task runMenu()
 
 void displayAutoType()
 {
-	nxtDisplayTextLine(7,"%s,%s,%i,%i,%i",right?"R":"L",full?"In":"Out",scoreTol,parkTol,delay);
+	nxtDisplayTextLine(7,"%s,%s,%i,%i,%i",right?"R":"L",full?"Ful":"1st",scoreTol,parkTol,delay);
 }
