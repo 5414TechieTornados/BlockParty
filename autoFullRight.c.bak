@@ -137,7 +137,7 @@ void parkRobot(){
 		moveRobot(turnDistanceRight, turnSpeed, rightDirection, parkingTolerance);
 		moveRobot(turnToLine, returnSpeed, forward, parkingTolerance);
 		moveRobot(turnDistanceRight, turnSpeed, rightDirection, parkingTolerance);
-		moveRobot(turnToLine + 1, returnSpeed, backwards, parkingTolerance);
+		moveRobot(turnToLine, returnSpeed, backwards, parkingTolerance);
 }
 
 /*
@@ -182,38 +182,38 @@ task main()
 	tHTIRS2DSPMode _mode = DSP_1200;
 
 	//Starts the first basket movements
-	returnTolerance += moveRobot(firstBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
-	wait1Msec(seekerReadWait);
+	moveRobot(firstBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
+	//wait1Msec(seekerReadWait);
 
 	int seekerValue = HTIRS2readACDir(IRRight);
-
 	//Sensor found, proceed to scoring
 	if(seekerValue >= autoSensorLowValue && seekerValue <= autoSensorHighValue){
 		scoreRobot(firstBasketInches - 1, returnSpeed, backwards);
 	}
 
 	//No sensor found so move to second basket movements
-	returnTolerance += moveRobot(secondBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
-	wait1Msec(seekerReadWait);
+	moveRobot(secondBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
+	//wait1Msec(seekerReadWait);
 
 	seekerValue = HTIRS2readACDir(IRRight);
+	nxtDisplayTextLine(0,"Sensor Value %d ",seekerValue);
 	//Sensor found, proceed to scoring
 	if(seekerValue >= autoSensorLowValue && seekerValue <= autoSensorHighValue){
 		scoreRobot(firstBasketInches + secondBasketInches - 1, returnSpeed, backwards);
 	}
 
 	//No sensor found so move to third basket movements
-	returnTolerance += moveRobot(thirdBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
-	wait1Msec(seekerReadWait);
+	moveRobot(thirdBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
+	//swait1Msec(seekerReadWait);
 
 	seekerValue = HTIRS2readACDir(IRRight);
-
+	nxtDisplayTextLine(0,"Sensor Value %d ",seekerValue);
 	//Sensor found, proceed to scoring
 	if(seekerValue >= autoSensorLowValue && seekerValue <= autoSensorHighValue){
 		scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches- 1, returnSpeed, backwards);
 	}
 
 	//No sensor found so score in fourth basket
-	returnTolerance += moveRobot(secondBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
+	moveRobot(secondBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
 	scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches + secondBasketInches - 1, returnSpeed, backwards);
 }
