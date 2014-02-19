@@ -24,6 +24,7 @@ bool full=true;
 int scoreTol=1;
 int parkTol=2;
 int delay=0;
+bool set = false;
 
 task runMenu()
 {
@@ -52,13 +53,12 @@ task runMenu()
 
 
 
-		nxtDisplayString(0,"Side:    %s",right?"right":"left ");
-		nxtDisplayString(1,"Type: %s",full?"first":"full  ");
-		nxtDisplayString(2,"Score Tol:   %2i",scoreTol);
-		nxtDisplayString(3,"Park Tol:   %3i",parkTol);
-		nxtDisplayString(4,"Delay:   %2i",delay);
-
-		nxtDisplayTextLine(7,"%s,%s,%i,%i,%i",right?"R":"L",full?"Ful":"1st",scoreTol,parkTol,delay);
+		nxtDisplayString(0,"Side     : %s",right?"right":"left ");
+		nxtDisplayString(1,"Type     : %s",full?"first":"full  ");
+		nxtDisplayString(2,"Score Tol: %i",scoreTol);
+		nxtDisplayString(3,"Park Tol : %i",parkTol);
+		nxtDisplayString(4,"Delay    : %i",delay);
+		nxtDisplayString(5,"Finalize?: %s",set?"Yes":"No ");
 
 		if(currVar == &right)
 		{
@@ -67,46 +67,67 @@ task runMenu()
 			nxtDisplayStringAt(94,47," ");
 			nxtDisplayStringAt(94,39," ");
 			nxtDisplayStringAt(94,31," ");
+			nxtDisplayStringAt(94,23," ");
 		} else if(currVar == &full){
 			nxtDisplayStringAt(94,63," ");
 			nxtDisplayStringAt(94,55,"*");
 			nxtDisplayStringAt(94,47," ");
 			nxtDisplayStringAt(94,39," ");
 			nxtDisplayStringAt(94,31," ");
+			nxtDisplayStringAt(94,23," ");
 		} else if(currVar == &scoreTol) {
 			nxtDisplayStringAt(94,63," ");
 			nxtDisplayStringAt(94,55," ");
 			nxtDisplayStringAt(94,47,"*");
 			nxtDisplayStringAt(94,39," ");
 			nxtDisplayStringAt(94,31," ");
+			nxtDisplayStringAt(94,23," ");
 		} else if(currVar == &parkTol) {
 			nxtDisplayStringAt(94,63," ");
 			nxtDisplayStringAt(94,55," ");
 			nxtDisplayStringAt(94,47," ");
 			nxtDisplayStringAt(94,39,"*");
 			nxtDisplayStringAt(94,31," ");
-		}
-		else{
+			nxtDisplayStringAt(94,23," ");
+		} else if(currVar == &delay){
 			nxtDisplayStringAt(94,63," ");
 			nxtDisplayStringAt(94,55," ");
 			nxtDisplayStringAt(94,47," ");
 			nxtDisplayStringAt(94,39," ");
 			nxtDisplayStringAt(94,31,"*");
+			nxtDisplayStringAt(94,23," ");
+		}	else{
+			nxtDisplayStringAt(94,63," ");
+			nxtDisplayStringAt(94,55," ");
+			nxtDisplayStringAt(94,47," ");
+			nxtDisplayStringAt(94,39," ");
+			nxtDisplayStringAt(94,31," ");
+			nxtDisplayStringAt(94,23,"*");
 		}
+
 
 
 		//this section is copied from JoystickDriver.c with changed line numbers
 		if ( externalBatteryAvg < 0){
-			nxtDisplayTextLine(5, "Ext Batt: OFF");       //External battery is off or not connected
+			nxtDisplayTextLine(6, "Ext Batt : OFF");       //External battery is off or not connected
 		} else {
-			nxtDisplayTextLine(5, "Ext Batt:%4.1f V", externalBatteryAvg / (float) 1000);
+			nxtDisplayTextLine(6, "Ext Batt :%4.1f V", externalBatteryAvg / (float) 1000);
 		}
-		nxtDisplayTextLine(6, "NXT Batt:%4.1f V", nAvgBatteryLevel / (float) 1000);   // Display NXT Battery Voltage
+		nxtDisplayTextLine(7, "NXT Batt :%4.1f V", nAvgBatteryLevel / (float) 1000);   // Display NXT Battery Voltage
 
-		if(nNxtButtonPressed==NEXT_BTN||nNxtButtonPressed==PREV_BTN){
+		if((nNxtButtonPressed==NEXT_BTN||nNxtButtonPressed==PREV_BTN) && (!set || currVar == &set)){
 			if(currType=='b'){
 				switchBool(currVar,nNxtButtonPressed);
 			} else if (currType=='i') {
+				if(currVar == &scoreTol){
+					nxtDisplayString(2,"Score Tol:    ",scoreTol);
+				}
+				if(currVar == &parkTol){
+					nxtDisplayString(3,"Park Tol :    ",parkTol);
+				}
+				if(currVar == &delay){
+					nxtDisplayString(4,"Delay    :    ",delay);
+				}
 				switchInt(currVar,nNxtButtonPressed);
 			}
 			ClearTimer(T1);
@@ -126,7 +147,10 @@ task runMenu()
 			} else if(currVar == &parkTol) {
 				currVar = &delay;
 				currType = 'i';
-			} else {
+			} else if(currVar == &delay) {
+				currVar = &set;
+				currType = 'b';
+			}else {
 				currVar = &right;
 				currType = 'b';
 			}
