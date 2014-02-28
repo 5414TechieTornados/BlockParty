@@ -1,16 +1,14 @@
- #pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTServo,  HTMotor)
+#pragma config(Hubs,  S1, HTMotor,  HTMotor,  HTServo,  HTMotor)
 #pragma config(Sensor, S1,     ,               sensorI2CMuxController)
-#pragma config(Sensor, S2,     IRLeft,         sensorI2CCustom)
-#pragma config(Sensor, S3,     IRRight,        sensorI2CCustom)
-#pragma config(Motor,  mtr_S1_C1_1,     right,         tmotorTetrix, PIDControl, encoder)
-#pragma config(Motor,  mtr_S1_C1_2,     left,          tmotorTetrix, PIDControl, reversed, encoder)
-#pragma config(Motor,  mtr_S1_C2_1,     frontHigh,     tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C2_2,     flag,          tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C1_1,     right,         tmotorTetrix, PIDControl)
+#pragma config(Motor,  mtr_S1_C1_2,     left,          tmotorTetrix, PIDControl, reversed)
+#pragma config(Motor,  mtr_S1_C2_1,     scoop,         tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C2_2,     frontHigh,     tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_1,     frontLow,      tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_2,     motorI,        tmotorTetrix, openLoop)
-#pragma config(Servo,  srvo_S1_C3_1,    scoop,                tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_2,    AutoLeft,             tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_3,    AutoRight,            tServoStandard)
+#pragma config(Motor,  mtr_S1_C4_2,     frontLow2,     tmotorTetrix, openLoop)
+#pragma config(Servo,  srvo_S1_C3_1,    ,                     tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_2,    auto1,                tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_3,    auto2,                tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_6,    servo6,               tServoNone)
@@ -32,24 +30,30 @@ task ButtonTask()
   switch (nNxtButtonPressed)
   {
   	case kExitButton:
-
+			motor[frontLow] = 0;
+			motor[frontLow2] = 0;
+			motor[frontHigh] = 0;
+			leftSpeed = leftSpeedDefault;
+			rightSpeed = rightSpeedDefault;
 			break;
 
   	case kLeftButton:
 		  motor[frontLow] = rightSpeed * -1;
+		  motor[frontLow2] = rightSpeed;
 		  rightSpeed = rightSpeed + rightSpeed;
 			break;
 
 		case kRightButton:
-		  motor[frontHigh] = rightSpeed * -1;
+		  motor[frontHigh] = rightSpeed;
 		  rightSpeed = rightSpeed + rightSpeed;
 			break;
 
 		case kEnterButton:
-		motor[frontLow] = 0;
-		motor[frontHigh] = 0;
-		leftSpeed = leftSpeedDefault;
-		rightSpeed = rightSpeedDefault;
+			motor[frontLow] = rightSpeed;
+			motor[frontLow2] = rightSpeed * -1;
+			motor[frontHigh] = rightSpeed * -1;
+			rightSpeed = rightSpeed + rightSpeed;
+			break;
 
 	}
 }

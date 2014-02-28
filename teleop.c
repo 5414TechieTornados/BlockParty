@@ -2,11 +2,11 @@
 #pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Motor,  mtr_S1_C1_1,     right,         tmotorTetrix, PIDControl)
 #pragma config(Motor,  mtr_S1_C1_2,     left,          tmotorTetrix, PIDControl, reversed)
-#pragma config(Motor,  mtr_S1_C2_1,     frontHigh,     tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C2_2,     flag,          tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C2_1,     scoop,         tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C2_2,     frontHigh,     tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_1,     frontLow,      tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_2,     scoop,         tmotorTetrix, openLoop)
-#pragma config(Servo,  srvo_S1_C3_1,    scoop,                tServoStandard)
+#pragma config(Motor,  mtr_S1_C4_2,     frontLow2,     tmotorTetrix, openLoop)
+#pragma config(Servo,  srvo_S1_C3_1,    ,                     tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_2,    auto1,                tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_3,    auto2,                tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_4,    servo4,               tServoNone)
@@ -94,32 +94,40 @@ Moves the front and lower parts of the arm lift
 */
 void moveLift() {
 
-	if(joy1Btn(6)){
-		motor[frontLow] = 30;
-	}
-	else if (joy1Btn(5)){
-		motor[frontLow] = -30;
-	}
-	else if(joy2Btn(6)){
+if(joy2Btn(6)){
 		motor[frontLow] = 100;
+		motor[frontLow2] = -100;
 	}
 	else if (joy2Btn(5)){
 		motor[frontLow] = -100;
+		motor[frontLow2] = 100;
+	}
+	else if(joy1Btn(8)){
+		motor[frontLow2] = -100;
+		motor[frontLow] = 0;
+	}
+	else if(joy1Btn(6)){
+		motor[frontLow2] = 100;
+		motor[frontLow] = 0;
+	}
+	else if(joy1Btn(7)){
+		motor[frontLow] = 100;
+		motor[frontLow2] = 0;
+	}
+	else if(joy1Btn(5)){
+		motor[frontLow] = -100;
+		motor[frontLow2] = 0;
 	}
 	else{
 		motor[frontLow] = 0;
+		motor[frontLow2] = 0;
 	}
 
-	if(joy1Btn(8)){
-		motor[frontHigh] = 30;
-	}
-	else if (joy1Btn(7)){
-		motor[frontHigh] = -30;
-	}
-	else if(joy2Btn(8)){
+
+	if(joy2Btn(7)){
 		motor[frontHigh] = 100;
 	}
-	else if(joy2Btn(7)){
+	else if(joy2Btn(8)){
 		motor[frontHigh] = -100;
 	}
 	else{
@@ -147,13 +155,19 @@ Moves the motor to raise the flag either slowly or quickly
 */
 void moveFlag() {
 	if(joy1Btn(2)){
-		motor[flag] = -100;
+		motor[motorA] = -100;
+		motor[motorB] = -100;
+		motor[motorC] = 100;
 	}
 	else if(joy1Btn(4)){
-		motor[flag] = 100;
+		motor[motorA] = 100;
+		motor[motorB] = 100;
+		motor[motorC] = -100;
 	}
 	else{
-		motor[flag] = 0;
+		motor[motorA] = 0;
+		motor[motorB] = 0;
+		motor[motorC] = 0;
 	}
 }
 void setSpeed(){

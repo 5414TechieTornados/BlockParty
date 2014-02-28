@@ -54,7 +54,7 @@ task runMenu()
 
 
 		nxtDisplayString(0,"Side     : %s",right?"right":"left ");
-		nxtDisplayString(1,"Type     : %s",full?"first":"full  ");
+		nxtDisplayString(1,"Type     : %s",full?"full  ":"first");
 		nxtDisplayString(2,"Score Tol: %i",scoreTol);
 		nxtDisplayString(3,"Park Tol : %i",parkTol);
 		nxtDisplayString(4,"Delay    : %i",delay);

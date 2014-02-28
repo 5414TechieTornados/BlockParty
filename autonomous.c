@@ -2,12 +2,12 @@
 #pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S2,     IRLeft,         sensorI2CCustom)
 #pragma config(Sensor, S3,     IRRight,        sensorI2CCustom)
-#pragma config(Motor,  mtr_S1_C1_1,     rightMotor,         tmotorTetrix, PIDControl, encoder)
-#pragma config(Motor,  mtr_S1_C1_2,     leftMotor,          tmotorTetrix, PIDControl, reversed, encoder)
-#pragma config(Motor,  mtr_S1_C2_1,     frontHigh,     tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C2_2,     flag,          tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C1_1,     rightMotor,    tmotorTetrix, PIDControl, encoder)
+#pragma config(Motor,  mtr_S1_C1_2,     leftMotor,     tmotorTetrix, PIDControl, reversed, encoder)
+#pragma config(Motor,  mtr_S1_C2_1,     scoop,         tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C2_2,     frontHigh,     tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_1,     frontLow,      tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_2,     motorI,        tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C4_2,     frontLow2,     tmotorTetrix, openLoop)
 #pragma config(Servo,  srvo_S1_C3_1,    scoop,                tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_2,    AutoRight,            tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_3,    AutoLeft,             tServoStandard)
@@ -31,6 +31,8 @@ float turnDistanceRight = 13;
 float turnToLine = 29;
 float scoringTolerance = 1;
 float parkingTolerance = 1;
+float leftReturnAdjustment = 1;
+float rightReturnAdjustment = 2;
 
 //Speeds
 const float forwardSpeed = 50.0;
@@ -44,16 +46,23 @@ string rightDirection = "right";
 string leftDirection = "left";
 
 //Wait times
-const float preArmScoreWait = 600;
-const float postArmScoreWait = 1000;
+const float preArmScoreWait = 800;
+
 const float initializeMotorWait = 250;
-const float seekerReadWait = 25;
+const float seekerReadWait = 40;
 
 //Servo, Sensor, and Motor values
-const float autoServoValue = 180;
+const float autoRightServoValue = 250;
+const float autoRightStartServoValue = 70;
+const float autoLeftServoValue = 0;
+const float autoLeftStartServoValue = 250;
 const float initializeMotorValue = 100;
 const float autoSensorValue = 5;
 
+void preInitializeRobot(){
+	servoTarget[AutoRight] = autoRightStartServoValue;
+	servoTarget[AutoLeft] = autoLeftStartServoValue;
+}
 
 /*
 	Converts measured distance of field to values robot encoders use
@@ -68,12 +77,13 @@ float convertInches(float inches){
  Moves the autonomous arm to score the block
 */
 void scoreBlock(){
-	servoTarget[right?AutoRight:AutoLeft] = 0;
+	servoTarget[right?AutoRight:AutoLeft] = right?autoRightServoValue:autoLeftServoValue;
 	wait1Msec(preArmScoreWait);
-	servoTarget[right?AutoRight:AutoLeft] = autoServoValue;
+	servoTarget[right?AutoRight:AutoLeft] = right?autoRightStartServoValue:autoLeftStartServoValue;
 
 	//used to make sure the arm finishes scoring before the robot moves
-	wait1Msec(postArmScoreWait);
+	//wait1Msec(postArmScoreWait);
+
 }
 
 /*
@@ -131,7 +141,7 @@ void parkRobot(){
 		moveRobot(dynamicDistance + 1, turnSpeed, dynamicDirection, parkingTolerance);
 		moveRobot(turnToLine, returnSpeed, forward, parkingTolerance);
 		moveRobot(dynamicDistance, turnSpeed, dynamicDirection, parkingTolerance);
-		moveRobot(turnToLine + 2, returnSpeed, backwards, parkingTolerance);
+		moveRobot(turnToLine + 3, returnSpeed, backwards, parkingTolerance);
 }
 
 /*
@@ -139,8 +149,10 @@ void parkRobot(){
 */
 void initializeRobot(){
 	motor[frontLow] = initializeMotorValue;
+	motor[frontLow2] = initializeMotorValue * -1;
 	wait1Msec(initializeMotorWait);
 	motor[frontLow] = 0;
+	motor[frontLow2] = 0;
 	scoringTolerance = scoreTol;
 	parkingTolerance = parkTol;
 }
@@ -172,42 +184,46 @@ void scoreRobot(float distance, float speed, string direction){
 void startRobot(){
 	//sets seeker value
 	tHTIRS2DSPMode _mode = DSP_1200;
+	int seekerValue = -5;
+	float adjustment = right?rightReturnAdjustment:leftReturnAdjustment;
 
 	//Starts the first basket movements
   moveRobot(firstBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
 	wait1Msec(seekerReadWait);
-
+	seekerValue = HTIRS2readACDir(right?IRRight:IRLeft)
 	//Sensor found, proceed to scoring
-	if(HTIRS2readACDir(right?IRRight:IRLeft) == autoSensorValue || !full){
-		scoreRobot(firstBasketInches - 1, returnSpeed, backwards);
+	if(seekerValue == autoSensorValue || !full){
+		scoreRobot(firstBasketInches - adjustment, returnSpeed, backwards);
 	}
 
 	//No sensor found so move to second basket movements
 	moveRobot(secondBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
 	wait1Msec(seekerReadWait);
-
+	seekerValue = HTIRS2readACDir(right?IRRight:IRLeft)
 	//Sensor found, proceed to scoring
-	if(HTIRS2readACDir(right?IRRight:IRLeft) == autoSensorValue){
-		scoreRobot(firstBasketInches + secondBasketInches - 1, returnSpeed, backwards);
+	if(seekerValue == autoSensorValue){
+		scoreRobot(firstBasketInches + secondBasketInches - adjustment, returnSpeed, backwards);
 	}
 
 	//No sensor found so move to third basket movements
 	moveRobot(thirdBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
 	wait1Msec(seekerReadWait);
-
+	seekerValue = HTIRS2readACDir(right?IRRight:IRLeft)
 	//Sensor found, proceed to scoring
-	if(HTIRS2readACDir(right?IRRight:IRLeft) == autoSensorValue){
-		scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches - 1, returnSpeed, backwards);
+	if(seekerValue == autoSensorValue){
+		scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches - adjustment, returnSpeed, backwards);
 	}
 
 	//No sensor found so score in fourth basket
 	moveRobot(secondBasketInches, forwardSpeed, forward, convertInches(scoringTolerance));
-	scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches + secondBasketInches - 1, returnSpeed, backwards);
+	scoreRobot(firstBasketInches + secondBasketInches + thirdBasketInches + secondBasketInches - adjustment, returnSpeed, backwards);
 }
 
 task main()
 {
+	bFloatDuringInactiveMotorPWM = false;
 	bDisplayDiagnostics = false;
+	preInitializeRobot();
 	StartTask(runMenu);
 
 	waitForStart(); // Wait for the beginning of autonomous phase.
