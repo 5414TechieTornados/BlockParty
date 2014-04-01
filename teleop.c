@@ -77,18 +77,19 @@ int getMotorOutput(int joystickValue){
 Moves the autonomous arm out of the way for the flag motor
 */
 void moveAutoArm (){
+if(joy1Btn(9)){
+   	servoTarget[auto2] = ServoValue(auto2) + 30;
+	}
+	else if(joy1Btn(10)){
+		servoTarget[auto2] = ServoValue(auto2) - 30;
+	}
+
 	if(joy2Btn(9)){
-   	servoTarget[auto2] = 256;
-   	servoTarget[auto4] = 0;
+   	servoTarget[auto1] = ServoValue(auto1) + 30;
 	}
 	else if(joy2Btn(10)){
-		servoTarget[auto2] = 0;
-   	servoTarget[auto4] = 256;
+		servoTarget[auto1] = ServoValue(auto1) - 30;
 	}
-	else{
-		servoTarget[auto2] = 127;
-   	servoTarget[auto4] = 127;
-  }
 
 }
 
