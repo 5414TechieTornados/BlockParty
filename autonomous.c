@@ -2,13 +2,13 @@
 #pragma config(Sensor, S1,     ,               sensorI2CMuxController)
 #pragma config(Sensor, S2,     IRLeft,         sensorI2CCustom)
 #pragma config(Sensor, S3,     IRRight,        sensorI2CCustom)
-#pragma config(Motor,  mtr_S1_C1_1,     rightMotor,    tmotorTetrix, PIDControl, encoder)
-#pragma config(Motor,  mtr_S1_C1_2,     leftMotor,     tmotorTetrix, PIDControl, reversed, encoder)
+#pragma config(Motor,  mtr_S1_C1_1,     leftMotor,     tmotorTetrix, PIDControl, reversed, encoder)
+#pragma config(Motor,  mtr_S1_C1_2,     frontLow,      tmotorTetrix, PIDControl, encoder)
 #pragma config(Motor,  mtr_S1_C2_1,     scoop,         tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C2_2,     frontHigh,     tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_1,     frontLow,      tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_2,     frontLow2,     tmotorTetrix, openLoop)
-#pragma config(Servo,  srvo_S1_C3_1,    scoop,                tServoStandard)
+#pragma config(Motor,  mtr_S1_C4_1,     frontLow2,     tmotorTetrix, openLoop)
+#pragma config(Motor,  mtr_S1_C4_2,     rightMotor,    tmotorTetrix, openLoop)
+#pragma config(Servo,  srvo_S1_C3_1,    servo1,               tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_2,    AutoRight,            tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_3,    AutoLeft,             tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_4,    servo4,               tServoNone)
@@ -46,7 +46,7 @@ string rightDirection = "right";
 string leftDirection = "left";
 
 //Wait times
-const float preArmScoreWait = 800;
+const float preArmScoreWait = 1000;
 
 const float initializeMotorWait = 250;
 const float seekerReadWait = 40;
