@@ -3,14 +3,14 @@
 #pragma config(Sensor, S2,     IRLeft,         sensorI2CCustom)
 #pragma config(Sensor, S3,     IRRight,        sensorI2CCustom)
 #pragma config(Motor,  mtr_S1_C1_1,     leftMotor,     tmotorTetrix, PIDControl, reversed, encoder)
-#pragma config(Motor,  mtr_S1_C1_2,     frontLow,      tmotorTetrix, PIDControl, encoder)
+#pragma config(Motor,  mtr_S1_C1_2,     frontLow,      tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C2_1,     scoop,         tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C2_2,     frontHigh,     tmotorTetrix, openLoop)
 #pragma config(Motor,  mtr_S1_C4_1,     frontLow2,     tmotorTetrix, openLoop)
-#pragma config(Motor,  mtr_S1_C4_2,     rightMotor,    tmotorTetrix, openLoop)
-#pragma config(Servo,  srvo_S1_C3_1,    servo1,               tServoStandard)
+#pragma config(Motor,  mtr_S1_C4_2,     rightMotor,    tmotorTetrix, PIDControl, encoder)
+#pragma config(Servo,  srvo_S1_C3_1,    AutoLeft,             tServoStandard)
 #pragma config(Servo,  srvo_S1_C3_2,    AutoRight,            tServoStandard)
-#pragma config(Servo,  srvo_S1_C3_3,    AutoLeft,             tServoStandard)
+#pragma config(Servo,  srvo_S1_C3_3,    servo3,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_4,    servo4,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_5,    servo5,               tServoNone)
 #pragma config(Servo,  srvo_S1_C3_6,    servo6,               tServoNone)
@@ -31,11 +31,11 @@ float turnDistanceRight = 13;
 float turnToLine = 29;
 float scoringTolerance = 1;
 float parkingTolerance = 1;
-float leftReturnAdjustment = 1;
+float leftReturnAdjustment = -1;
 float rightReturnAdjustment = 2;
 
 //Speeds
-const float forwardSpeed = 50.0;
+const float forwardSpeed = 50;
 const float turnSpeed = 40;
 const float returnSpeed = 100;
 
@@ -54,7 +54,7 @@ const float seekerReadWait = 40;
 //Servo, Sensor, and Motor values
 const float autoRightServoValue = 250;
 const float autoRightStartServoValue = 70;
-const float autoLeftServoValue = 0;
+const float autoLeftServoValue = 40;
 const float autoLeftStartServoValue = 250;
 const float initializeMotorValue = 100;
 const float autoSensorValue = 5;
@@ -104,6 +104,8 @@ void moveRobot(float distance, float speed, string direction, float tolerance){
 	nMotorEncoderTarget[rightMotor] = target;
 	nMotorEncoderTarget[leftMotor] = target;
 
+
+
 	//blocks used to set correct motor speeds
 	if(forward == direction){
 		motor[rightMotor] = speed;
@@ -124,6 +126,9 @@ void moveRobot(float distance, float speed, string direction, float tolerance){
 
 	//Move the robot until encoder target is reached
 	while(nMotorRunState[rightMotor] != runStateIdle || nMotorRunState[leftMotor] != runStateIdle){
+			nxtDisplayTextLine(1, "target: %d", target);
+		  nxtDisplayTextLine(2, "actual Right: %d", nMotorEncoder[rightMotor]);
+		    nxtDisplayTextLine(3, "actual Left: %d", nMotorEncoder[leftMotor]);
 		if(abs(target - abs(nMotorEncoder[rightMotor])) < tolerance || abs(target - abs(nMotorEncoder[leftMotor])) < tolerance){
 			break;
 		}
