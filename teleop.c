@@ -144,10 +144,10 @@ Moves the motor that raises and lowers the bucket
 */
 void moveBucket() {
 	if(joy1Btn(3)){
-		motor[scoop] = 40;
+		motor[scoop] = 30;
 	}
 	else if(joy1Btn(1)){
-		motor[scoop] = -40;
+		motor[scoop] = -30;
 	}
 	else{
 		motor[scoop] = 0;

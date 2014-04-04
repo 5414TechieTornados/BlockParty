@@ -27,12 +27,12 @@ const float thirdBasketInches = 14;
 
 //Turning measurements
 float turnDistanceLeft = 15;
-float turnDistanceRight = 13;
+float turnDistanceRight = 15;
 float turnToLine = 29;
 float scoringTolerance = 1;
 float parkingTolerance = 1;
 float leftReturnAdjustment = -1;
-float rightReturnAdjustment = 2;
+float rightReturnAdjustment = 1;
 
 //Speeds
 const float forwardSpeed = 50;
@@ -52,9 +52,9 @@ const float initializeMotorWait = 250;
 const float seekerReadWait = 40;
 
 //Servo, Sensor, and Motor values
-const float autoRightServoValue = 250;
+const float autoRightServoValue = 240;
 const float autoRightStartServoValue = 70;
-const float autoLeftServoValue = 40;
+const float autoLeftServoValue = 80;
 const float autoLeftStartServoValue = 250;
 const float initializeMotorValue = 100;
 const float autoSensorValue = 5;
@@ -239,4 +239,6 @@ task main()
 	initializeRobot();
 	wait1Msec(delay*1000);
 	startRobot();
+	parkRobot();
+	stopRobot();
 }
