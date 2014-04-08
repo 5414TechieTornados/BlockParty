@@ -143,7 +143,7 @@ void moveRobot(float distance, float speed, string direction, float tolerance){
 void parkRobot(){
 		int dynamicDistance = right?turnDistanceRight:turnDistanceLeft;
 		string dynamicDirection = right?rightDirection:leftDirection;
-		moveRobot(dynamicDistance + 1, turnSpeed, dynamicDirection, parkingTolerance);
+		moveRobot((dynamicDistance + 1)/2, turnSpeed, dynamicDirection, parkingTolerance);
 		moveRobot(turnToLine, returnSpeed, forward, parkingTolerance);
 		moveRobot(dynamicDistance, turnSpeed, dynamicDirection, parkingTolerance);
 		moveRobot(turnToLine + 3, returnSpeed, backwards, parkingTolerance);
@@ -238,5 +238,7 @@ task main()
 	bDisplayDiagnostics = true;
 	initializeRobot();
 	wait1Msec(delay*1000);
-	startRobot();
+	//startRobot();
+	parkRobot();
+	stopRobot();
 }
