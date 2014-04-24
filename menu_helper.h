@@ -24,7 +24,7 @@ bool full=true;
 int scoreTol=1;
 int parkTol=2;
 int delay=0;
-bool set = false;
+bool blockRobot = false;
 
 task runMenu()
 {
@@ -58,7 +58,7 @@ task runMenu()
 		nxtDisplayString(2,"Score Tol: %i",scoreTol);
 		nxtDisplayString(3,"Park Tol : %i",parkTol);
 		nxtDisplayString(4,"Delay    : %i",delay);
-		nxtDisplayString(5,"Finalize?: %s",set?"Yes":"No ");
+		nxtDisplayString(5,"Block: %s",blockRobot?"Yes":"No ");
 
 		if(currVar == &right)
 		{
@@ -115,7 +115,7 @@ task runMenu()
 		}
 		nxtDisplayTextLine(7, "NXT Batt :%4.1f V", nAvgBatteryLevel / (float) 1000);   // Display NXT Battery Voltage
 
-		if((nNxtButtonPressed==NEXT_BTN||nNxtButtonPressed==PREV_BTN) && (!set || currVar == &set)){
+		if((nNxtButtonPressed==NEXT_BTN||nNxtButtonPressed==PREV_BTN) && (!blockRobot || currVar == &blockRobot)){
 			if(currType=='b'){
 				switchBool(currVar,nNxtButtonPressed);
 			} else if (currType=='i') {
@@ -148,7 +148,7 @@ task runMenu()
 				currVar = &delay;
 				currType = 'i';
 			} else if(currVar == &delay) {
-				currVar = &set;
+				currVar = &blockRobot;
 				currType = 'b';
 			}else {
 				currVar = &right;

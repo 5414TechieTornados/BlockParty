@@ -31,7 +31,7 @@ float turnDistanceRight = 15;
 float turnToLine = 29;
 float scoringTolerance = 1;
 float parkingTolerance = 1;
-float leftReturnAdjustment = -1;
+float leftReturnAdjustment = -.75;
 float rightReturnAdjustment = 1;
 
 //Speeds
@@ -128,7 +128,7 @@ void moveRobot(float distance, float speed, string direction, float tolerance){
 	while(nMotorRunState[rightMotor] != runStateIdle || nMotorRunState[leftMotor] != runStateIdle){
 			nxtDisplayTextLine(1, "target: %d", target);
 		  nxtDisplayTextLine(2, "actual Right: %d", nMotorEncoder[rightMotor]);
-		    nxtDisplayTextLine(3, "actual Left: %d", nMotorEncoder[leftMotor]);
+		  nxtDisplayTextLine(3, "actual Left: %d", nMotorEncoder[leftMotor]);
 		if(abs(target - abs(nMotorEncoder[rightMotor])) < tolerance || abs(target - abs(nMotorEncoder[leftMotor])) < tolerance){
 			break;
 		}
@@ -146,7 +146,7 @@ void parkRobot(){
 		moveRobot(dynamicDistance + 1, turnSpeed, dynamicDirection, parkingTolerance);
 		moveRobot(turnToLine, returnSpeed, forward, parkingTolerance);
 		moveRobot(dynamicDistance, turnSpeed, dynamicDirection, parkingTolerance);
-		moveRobot(turnToLine + 3, returnSpeed, backwards, parkingTolerance);
+		moveRobot(turnToLine + 1, returnSpeed, backwards, parkingTolerance);
 }
 
 /*
@@ -166,12 +166,55 @@ void initializeRobot(){
 	Used to stop the robot after on the bridge
 */
 void stopRobot(){
-	while(true){
-		motor[leftMotor] = 0;
-		motor[rightMotor] = 0;
+	motor[leftMotor] = 0;
+	motor[rightMotor] = 0;
+
+	while(blockRobot){
+		nMotorEncoder[rightMotor] = 0;
+		nMotorEncoder[leftMotor] = 0;
+
+		while(true){
+			float encoderRight = nMotorEncoder[rightMotor];
+			float encoderLeft = nMotorEncoder[leftMotor];
+
+			bFloatDuringInactiveMotorPWM = false;
+
+
+			nxtDisplayTextLine(1, "target: %d", encoderRight);
+			nxtDisplayTextLine(2, "target: %d", encoderLeft);
+		  nxtDisplayTextLine(3, "Right: %d", nMotorEncoder[rightMotor]);
+		  nxtDisplayTextLine(4, "Left: %d", nMotorEncoder[leftMotor]);
+
+			while(encoderRight == nMotorEncoder[rightMotor] || encoderLeft == nMotorEncoder[leftMotor]){
+			}
+
+			float newEncoderRight = nMotorEncoder[rightMotor];
+			float newEncoderLeft = nMotorEncoder[leftMotor];
+
+			if(newEncoderRight/abs(newEncoderRight) == -1){
+				nMotorEncoderTarget[rightMotor] = abs(newEncoderRight) - encoderRight;
+				nMotorEncoderTarget[leftMotor] = abs(newEncoderLeft) - encoderLeft;
+				motor[leftMotor] = 50;
+				motor[rightMotor] = 50;
+
+				while(nMotorRunState[rightMotor] != runStateIdle || nMotorRunState[leftMotor] != runStateIdle){
+					nxtDisplayTextLine(1, "target: %d", nMotorEncoderTarget[rightMotor]);
+					nxtDisplayTextLine(2, "target: %d", nMotorEncoderTarget[leftMotor]);
+			  	nxtDisplayTextLine(3, "actual Right: %d", nMotorEncoder[rightMotor]);
+		  		nxtDisplayTextLine(4, "actual Left: %d", nMotorEncoder[leftMotor]);
+		  		if(abs(nMotorEncoder[rightMotor]) - abs(nMotorEncoderTarget[rightMotor]) > 100 || abs(nMotorEncoder[leftMotor]) - abs(nMotorEncoderTarget[leftMotor]) > 100){
+						break;
+					}
+				}
+			}
+
+			motor[leftMotor] = 0;
+			motor[rightMotor] = 0;
+		}
+		while(!blockRobot){
+		}
 	}
 }
-
 /*
 	Used to commence scoring with the block and parking based on the values
 	Parameters:
@@ -230,13 +273,14 @@ task main()
 	bDisplayDiagnostics = false;
 	preInitializeRobot();
 	StartTask(runMenu);
-
+		bDisplayDiagnostics = false;
 	waitForStart(); // Wait for the beginning of autonomous phase.
 
 	StopTask(runMenu);
 	eraseDisplay();
-	bDisplayDiagnostics = true;
-	initializeRobot();
+	bDisplayDiagnostics = false;
+  initializeRobot();
 	wait1Msec(delay*1000);
 	startRobot();
+	stopRobot();
 }
