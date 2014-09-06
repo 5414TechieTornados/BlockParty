@@ -18,7 +18,7 @@
 
 //Define class variables
 const float MAX_JOYSTICK = 125.0;
-const float MOTOR_POWER = 100;
+const float MOTOR_POWER = 110;
 const float SLOW_MOTOR_POWER = 40;
 bool fasterSpeed = true;
 
