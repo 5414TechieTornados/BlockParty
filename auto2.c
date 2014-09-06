@@ -26,6 +26,7 @@ const float secondBasketInches = 5;
 const float thirdBasketInches = 14;
 
 //Turning measurements
+float pointlessVariable = 0;
 float turnDistanceLeft = 15;
 float turnDistanceRight = 15;
 float turnToLine = 29;
