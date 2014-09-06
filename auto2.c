@@ -22,7 +22,7 @@
 
 //Basket measurements
 const float firstBasketInches = 25;
-const float secondBasketInches = 8;
+const float secondBasketInches = 5;
 const float thirdBasketInches = 14;
 
 //Turning measurements
